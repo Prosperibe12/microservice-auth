@@ -1,14 +1,13 @@
-from rest_framework.response import Response 
 import requests
+from rest_framework.response import Response 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import smart_bytes
-from django.utils.http import urlsafe_base64_encode
-from decouple import config
+from django.utils.encoding import smart_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.urls import reverse
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
+from decouple import config
 from authentication import models
-
 
 class CustomResponse():
     """
@@ -57,7 +56,7 @@ class AuthNotification:
             raise
 
     @staticmethod
-    def register_email_notification(payload, domain_name):
+    def verify_email_notification(payload, domain_name):
         """Send email verification link to the user."""
         try:
             user = models.User.objects.get(id=payload['id'])
@@ -68,13 +67,13 @@ class AuthNotification:
         url_path = reverse('verify-email')
         subject = "ACCOUNT VERIFICATION"
         absurl = f'http://{domain_name}{url_path}?token={str(token)}'
-        message = f"Hello, \nKindly use the link below to activate your email: \n{absurl}"
+        message = f"Hello {user.fullname}, \n Kindly use the link below to activate your email: \n{absurl}"
 
         print(f"Sending account verification email \n {message}")
         # return AuthNotification._send_email(user.email, subject, message)
     
     @staticmethod 
-    def send_password_reset_email(users, domain_name):
+    def password_reset_notification(users, domain_name):
         """Send password reset link to the user."""
         try:
             user = models.User.objects.get(email=users['email'])
@@ -88,11 +87,30 @@ class AuthNotification:
 
         uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
         token = PasswordResetTokenGenerator().make_token(user)
-        abs_path = reverse('password_reset_confirm', kwargs={'uidb64': uidb64, 'token': token})
+        abs_path = reverse('password-reset-confirm', kwargs={'uidb64': uidb64, 'token': token})
 
         subject = "PASSWORD RESET REQUEST"
         absurl = f'http://{domain_name}{abs_path}'
-        message = f"Hello, \nKindly use the link below to reset your password: \n{absurl}"
+        message = f"Hello {user.fullname}, \nKindly use the link below to reset your password: \n{absurl}"
 
         print(f"Sending password reset email \n {message}")
+        # return AuthNotification._send_email(user.email, subject, message)
+        
+    @staticmethod
+    def password_confirm_notification(data):
+        # get user from decoded uidb64
+        try:
+            # decode user
+            id = force_str(urlsafe_base64_decode(data['uidb64']))
+            user = models.User.objects.get(id=id)
+            
+            # validate token
+            if not PasswordResetTokenGenerator().check_token(user,data['token']):
+                raise AuthenticationFailed("Verification Token is invalid or Expired", 401)
+        except:
+            raise AuthenticationFailed("Cannot Verify the user", 401)
+        # prepare email
+        subject = "PASSWORD RESET CONFIRMATION"
+        message = f"Hello {user.fullname}, \nYour password change request has been successful. If you did not initiate this change, please contact our support team immediately."
+        print(message)
         # return AuthNotification._send_email(user.email, subject, message)
