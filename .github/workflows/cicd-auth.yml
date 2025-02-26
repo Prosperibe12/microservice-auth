@@ -17,7 +17,8 @@ jobs:
     name: Run Tests and Build Docker Image
     runs-on: ubuntu-latest
     env:
-      AMPQ_URL: 'amqp://guest:guest@localhost:5672/'
+      CLOUD_AMQP_URL: ${{ secrets.CLOUD_AMQP_URL }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     steps:
       - name: Checkout Repository
