@@ -1,0 +1,38 @@
+name: Auth Service CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+
+  pull_request:
+    branches:
+      - master 
+      - staging
+  
+  workflow_dispatch:
+
+jobs:
+  test-build:
+    name: Run Tests and Build Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt 
+
+      - name: Run Tests
+        run: |
+          echo "Running Tests"
+          coverage run manage.py test
+          echo "Completed Tests"
