@@ -19,6 +19,7 @@ jobs:
     env:
       CLOUD_AMQP_URL: ${{ secrets.CLOUD_AMQP_URL }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout Repository
@@ -29,7 +30,12 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install DB Dependencies
+        run: |
+          sudo apt install postgresql postgresql-contrib -y 
+        shell: bash
+
+      - name: Install Application Dependencies
         run: |
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt 
