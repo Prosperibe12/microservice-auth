@@ -20,6 +20,7 @@ jobs:
       CLOUD_AMQP_URL: ${{ secrets.CLOUD_AMQP_URL }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
 
     steps:
       - name: Checkout Repository
