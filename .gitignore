@@ -5,3 +5,7 @@ __pycache__/
 .coverage
 htmlcov/
 .coveragerc
+db.sqlite3
+*.pyc
+*.pyo
+*.pyd

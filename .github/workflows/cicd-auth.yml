@@ -1,0 +1,53 @@
+name: Auth Service CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+
+  pull_request:
+    branches:
+      - master 
+      - staging
+  
+  workflow_dispatch:
+
+jobs:
+  test-build:
+    name: Run Tests and Build Docker Image
+    runs-on: ubuntu-latest
+    env:
+      CLOUD_AMQP_URL: ${{ secrets.CLOUD_AMQP_URL }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install DB Dependencies
+        run: |
+          sudo apt install postgresql postgresql-contrib -y 
+        shell: bash
+
+      - name: Install Application Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt
+        
+      - name: Run Migrations
+        run: |
+          python3 manage.py makemigrations
+          python3 manage.py migrate
+
+      - name: Run Tests
+        run: |
+          echo "Running Tests"
+          coverage run manage.py test
+          echo "Completed Tests"
