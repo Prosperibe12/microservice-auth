@@ -3,7 +3,8 @@ name: Auth Service CI/CD Pipeline
 on:
   push:
     branches:
-      - '**'
+      - master
+      - staging
 
   pull_request:
     branches:
@@ -13,8 +14,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-build:
-    name: Run Tests and Build Docker Image
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
     env:
       CLOUD_AMQP_URL: ${{ secrets.CLOUD_AMQP_URL }}

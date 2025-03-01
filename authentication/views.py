@@ -72,6 +72,28 @@ class LoginView(generics.GenericAPIView):
             return utils.CustomResponse.Success(serializers.data, status=status.HTTP_200_OK)
         return utils.CustomResponse.Failure(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class VerifyTokenView(generics.GenericAPIView):
+    """
+    This view handles the logic for verifying the user token
+    """
+    authentication_classes = ()
+    permission_classes = ()
+
+    def post(self, request):
+        # get the token from the request headers
+        token = request.headers.get('Authorization').split()[1]
+        try:
+            # decode the token
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            # get the user id from the payload and verify the user exists
+            user = models.User.objects.get(id=payload['user_id'])
+            if user and user.is_verified:
+                return utils.CustomResponse.Success(payload, status=status.HTTP_200_OK)
+        except jwt.ExpiredSignatureError:
+            return utils.CustomResponse.Failure("Token Expired", status=status.HTTP_400_BAD_REQUEST)
+        except jwt.DecodeError:
+            return utils.CustomResponse.Failure("Invalid Token", status=status.HTTP_400_BAD_REQUEST)
+
 class PasswordResetRequest(generics.GenericAPIView):
     """
     This view handles the logic for sending a password reset link to the user email
