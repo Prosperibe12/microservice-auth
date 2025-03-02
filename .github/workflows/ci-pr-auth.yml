@@ -1,11 +1,8 @@
-name: Auth Service CI/CD Pipeline
-
+name: Auth Service Continuos Integration Pipeline
+# This workflow is triggered on pull requests to the master branch
+# It ensures that the incoming code is tested before merging to the master branch
 on:
-  push:
-    branches:
-      - master
-      - staging
-
+  
   pull_request:
     branches:
       - master 
