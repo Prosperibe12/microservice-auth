@@ -7,7 +7,7 @@ from django.utils.http import urlsafe_base64_decode
 import jwt
 
 from authentication import serializers, utils, tasks, models
-from django.conf import settings
+from project_core.settings import base
 
 class RegisterView(generics.GenericAPIView):
     """
@@ -18,7 +18,7 @@ class RegisterView(generics.GenericAPIView):
     serializer_class = serializers.RegisterSerializer
     
     def post(self, request):
-        data = request.data 
+        data = request.data
         serializers = self.serializer_class(data=data)
         # use atomicity to rollback the transaction if an error occurs
         with transaction.atomic():
@@ -44,7 +44,7 @@ class VerifyEmailView(generics.GenericAPIView):
         token = request.query_params.get('token')
         # decode the token
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            payload = jwt.decode(token, base.SECRET_KEY, algorithms=['HS256'])
             # get the user id from the payload
             user = models.User.objects.get(id=payload['user_id'])
             # set the user is_verified to True
@@ -76,15 +76,17 @@ class VerifyTokenView(generics.GenericAPIView):
     """
     This view handles the logic for verifying the user token
     """
-    authentication_classes = ()
-    permission_classes = ()
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         # get the token from the request headers
-        token = request.headers.get('Authorization').split()[1]
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or len(auth_header.split()) != 2:
+            return utils.CustomResponse.Failure("Missing Authorization Credentials!", status=status.HTTP_400_BAD_REQUEST)
+        token = auth_header.split()[1]
         try:
             # decode the token
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            payload = jwt.decode(token, base.SECRET_KEY, algorithms=['HS256'])
             # get the user id from the payload and verify the user exists
             user = models.User.objects.get(id=payload['user_id'])
             if user and user.is_verified:
