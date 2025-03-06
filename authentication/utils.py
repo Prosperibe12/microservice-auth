@@ -1,13 +1,72 @@
 import requests
 from rest_framework.response import Response 
+from rest_framework.views import exception_handler
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.urls import reverse
+from django.urls import reverse 
+from django.http import JsonResponse
 from rest_framework.exceptions import NotFound, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from decouple import config
 from authentication import models
+
+def custom_exception_handler(exc, context):
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = exception_handler(exc, context)
+
+    # Update the structure of the response data.
+    if response is not None:
+        customized_response = {
+            "data": [],
+            "errors": [],
+            "code": response.status_code,
+            "message": "Failed"
+        }
+
+        # Extract error messages
+        if isinstance(response.data, list):
+            customized_response['errors'].extend(response.data)
+        elif isinstance(response.data, dict):
+            if 'detail' in response.data:
+                customized_response['errors'].append(response.data.get('detail'))
+            else:
+                for key, value in response.data.items():
+                    if isinstance(value, list):
+                        customized_response['errors'].extend(value)
+                    else:
+                        customized_response['errors'].append(value)
+
+        response.data = customized_response
+
+    return response
+
+# Handle 404 errors
+def custom404(request, exception):
+    message = 'The resource was not found'
+    response =  JsonResponse({
+        'errors': message,
+        'data': '',
+        'status': 'failed',
+        'code': 404
+    })
+    response.status_code = 404 
+    # send a notification here
+    return response
+
+# custom 500 error
+def custom500(request):
+    message = 'An error occured, we are working to fix it'
+    response =  JsonResponse({
+        'errors': message,
+        'data': '',
+        'status': 'failed',
+        'code': 500
+    })
+    response.status_code = 500
+    # send a notification here
+    return response
 
 class CustomResponse():
     """
@@ -18,6 +77,7 @@ class CustomResponse():
         data1 = {
             "data": data,
             "errors": [],
+            "code": status,
             "message": "Success"       
         }
         return Response(data1, status=status, headers=headers)
@@ -26,10 +86,11 @@ class CustomResponse():
         data1 = {
             "errors": error,
             "data": [],
+            "code": status,
             "message": "Failed"
         }
         return Response(data1, status=status, headers=headers)
-    
+
 class AuthNotification:
     """ 
     Class for handling registration notfications
