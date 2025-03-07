@@ -5,7 +5,7 @@ This is an Authentication Service for a Microservice and Distributed System Proj
 ## Table of Contents
 
 - [Technologies](#technologies)
-- [Setup](#setup)
+- [Installation & Setup](#setup)
 - [Environment Variables](#environment-variables)
 - [Running as Service](#running-the-service)
 - [API Endpoints](#api-endpoints)
