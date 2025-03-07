@@ -1,6 +1,9 @@
 from django.urls import reverse
+from django.core import mail
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
+from rest_framework import status 
+import jwt
+from django.conf import settings
 from rest_framework.test import APITestCase
 from authentication import models, views
 
@@ -14,6 +17,7 @@ class TestAuthentications(APITestCase):
         self.register_url = reverse('register')
         self.login_url = reverse('login')
         self.password_reset_request = reverse('password-reset')
+        self.token_verify = reverse('token-verify')
         
         self.register_data = {
             "fullname": "Hey There",
@@ -108,4 +112,61 @@ class TestAuthentications(APITestCase):
         models.User.objects.create_user(fullname="Hey Bob", email="a@a.com", password="123456")
         res = self.client.post(self.password_reset_request, {"email":"a@a.com"}, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_invalid_user_cant_request_for_password_change(self):
+        response = self.client.post(self.password_reset_request, {'Email': 'rahman.sol@e360africa.com'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_inactive_user_cant_request_for_password_change(self):
+        response = self.client.post(self.password_reset_request, {'Email': 'solankerahman@gmail.com'}, format='json')
+       
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
+    def test_valid_user_can_verify_token(self):
+        res = self.client.post(self.register_url, self.register_data, format='json')
+        email = self.register_data['email']
+        user = models.User.objects.get(email=email)
+        user.is_verified = True
+        user.save()
+        response = self.client.post(self.login_url, self.login_data, format='json')
+        headers = {
+            "Authorization": f"Bearer {response.data['data']['tokens']['access']}"
+        }
+        verify = self.client.post(self.token_verify, headers=headers, format='json')
+        self.assertEqual(verify.status_code, status.HTTP_200_OK)
+
+    def test_verify_token_missing_authorization(self):
+        # Verify the token without Authorization header
+        verify_response = self.client.post(self.token_verify, format='json')
+        self.assertEqual(verify_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(verify_response.data['message'], "Failed")
+
+    def test_verify_token_expired(self):
+        # Register and verify the user
+        self.client.post(self.register_url, self.register_data, format='json')
+        email = self.register_data['email']
+        user = models.User.objects.get(email=email)
+        user.is_verified = True
+        user.save()
+
+        # Create an expired token
+        expired_token = jwt.encode({'user_id': user.id, 'exp': 0}, settings.SECRET_KEY, algorithm='HS256')
+
+        # Verify the expired token
+        headers = {
+            "Authorization": f"Bearer {expired_token}"
+        }
+        verify_response = self.client.post(self.token_verify, **headers, format='json')
+        print("V", verify_response.data)
+        self.assertEqual(verify_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(verify_response.data['message'], "Failed")
+
+    def test_verify_token_invalid(self):
+        # Verify an invalid token
+        headers = {
+            "Authorization": "Bearer invalidtoken"
+        }
+        verify_response = self.client.post(self.token_verify, **headers, format='json')
+        self.assertEqual(verify_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(verify_response.data['message'], "Failed")
