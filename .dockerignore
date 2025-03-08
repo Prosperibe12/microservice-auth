@@ -3,4 +3,5 @@ venv
 .coverage
 .coveragerc
 server.log
+.github
 
