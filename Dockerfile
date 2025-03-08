@@ -2,8 +2,8 @@ ARG PYTHON_VERSION=3.12-slim-bullseye
 FROM python:${PYTHON_VERSION}
 
 # Set Python-related environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Install os dependencies for our mini vm
 RUN apt-get update \ 
@@ -50,4 +50,4 @@ EXPOSE 8000
 
 # Run the Django project via the runtime script
 # when the container starts
-CMD ./runner.sh
+CMD ["./runner.sh"]
