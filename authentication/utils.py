@@ -5,7 +5,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.urls import reverse 
-from django.core.mail import send_mail
+from django.core.mail import send_mail, mail_admins
 from django.http import JsonResponse
 from rest_framework.exceptions import NotFound, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -110,7 +110,11 @@ class AuthNotification:
             )
         except Exception as e:
             print(f"Failed to send email to {to_email}: {e}")
-            raise
+            # Notify admins of failure
+            mail_admins(
+                subject="Cannot Send Registration Mail",
+                message="The Send Email functionality is failing, cannot send Auth emails"
+            )
 
     @staticmethod
     def verify_email_notification(payload, domain_name):
