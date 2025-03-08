@@ -1,0 +1,6 @@
+htmlcov
+venv
+.coverage
+.coveragerc
+server.log
+
