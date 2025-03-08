@@ -5,6 +5,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.urls import reverse 
+from django.core.mail import send_mail
 from django.http import JsonResponse
 from rest_framework.exceptions import NotFound, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -100,19 +101,14 @@ class AuthNotification:
     def _send_email(to_email, subject, message):
         """Utility method to send emails using Mailgun API."""
         try:
-            response = requests.post(
-                config("MAIL_BASE_URL"),
-                auth=("api", config("MAILGUN_SECRET_KEY")),
-                data={
-                    "from": config("MAIL_SENDER"),
-                    "to": [to_email],
-                    "subject": subject,
-                    "text": message,
-                },
+            send_mail(
+                subject, 
+                message, 
+                config("EMAIL_HOST_USER"), 
+                [to_email],
+                fail_silently=False
             )
-            response.raise_for_status()
-            return response
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             print(f"Failed to send email to {to_email}: {e}")
             raise
 
@@ -131,7 +127,7 @@ class AuthNotification:
         message = f"Hello {user.fullname}, \n Kindly use the link below to activate your email: \n{absurl}"
 
         print(f"Sending account verification email \n {message}")
-        # return AuthNotification._send_email(user.email, subject, message)
+        return AuthNotification._send_email(user.email, subject, message)
     
     @staticmethod 
     def password_reset_notification(users, domain_name):
@@ -155,7 +151,7 @@ class AuthNotification:
         message = f"Hello {user.fullname}, \nKindly use the link below to reset your password: \n{absurl}"
 
         print(f"Sending password reset email \n {message}")
-        # return AuthNotification._send_email(user.email, subject, message)
+        return AuthNotification._send_email(user.email, subject, message)
         
     @staticmethod
     def password_confirm_notification(data):
@@ -174,4 +170,4 @@ class AuthNotification:
         subject = "PASSWORD RESET CONFIRMATION"
         message = f"Hello {user.fullname}, \nYour password change request has been successful. If you did not initiate this change, please contact our support team immediately."
         print(message)
-        # return AuthNotification._send_email(user.email, subject, message)
+        return AuthNotification._send_email(user.email, subject, message)
