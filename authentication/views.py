@@ -5,6 +5,8 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode
 import jwt
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from authentication import serializers, utils, tasks, models
 from project_core.settings import base
@@ -38,7 +40,9 @@ class VerifyEmailView(generics.GenericAPIView):
     authentication_classes = ()
     permission_classes = ()
     serializer_class = serializers.EmailVerificationSerializer
+    token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Input Your Token', type=openapi.TYPE_STRING)
     
+    @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
         # get the token from the query params
         token = request.query_params.get('token')
@@ -76,8 +80,11 @@ class VerifyTokenView(generics.GenericAPIView):
     """
     This view handles the logic for verifying the user token
     """
+    serializer_class = serializers.EmailVerificationSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    token_param_config = openapi.Parameter('Access Token', in_=openapi.IN_QUERY, description='Input Your Token', type=openapi.TYPE_STRING)
+    
+    @swagger_auto_schema(manual_parameters=[token_param_config])
     def post(self, request):
         # get the token from the request headers
         auth_header = request.headers.get('Authorization')

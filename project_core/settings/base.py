@@ -24,12 +24,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
     'corsheaders',
     'authentication.apps.AuthenticationConfig',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
-    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -209,4 +209,14 @@ if all([ADMIN_USER_NAME, ADMIN_USER_EMAIL]):
     ADMINS +=[
         (f'{ADMIN_USER_NAME}', f'{ADMIN_USER_EMAIL}')
     ]
-    MANAGERS=ADMINS
+    MANAGERS=ADMINS 
+    
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
