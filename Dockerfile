@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED 1
 # Install os dependencies for our mini vm
 RUN apt-get update \ 
     && apt-get install -y --no-install-recommends --no-install-suggests \ 
-    build-essentials default-libmysqlclient-dev libpq-dev \ 
+    build-essential default-libmysqlclient-dev libpq-dev \ 
     && pip install --no-cache-dir --upgrade pip
 
 # Set the working directory to that same code directory
