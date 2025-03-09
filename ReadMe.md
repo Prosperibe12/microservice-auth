@@ -76,8 +76,15 @@ python3 manage.py runserver
 ### Running as Service
 2. Build and run the Docker containers:
 ```bash
-docker compose up --build
+docker build .
 ```
+
+### Running as Service
+3. Deploy to Local Kubernetes Cluster:
+```bash
+kubectl apply -f ./
+```
+
 ## API Endpoints
 To view the list of API endpoints in this service and their payload, go to 
 ```bash
@@ -89,7 +96,7 @@ http://127.0.0.1:8000
 Pull requests are welcome. For major changes, please open an issue first
 to discuss what you would like to change.
 
-Please make sure to update tests as appropriate.
+Please make sure to update Environment Variables or contact Prosperibe12@gmail.com.
 
 ## License
 

@@ -1,4 +1,4 @@
-name: Auth Service Continuos Integration and Continuos Deployment Pipeline
+name: Auth Service Continuos Integration and Continuos Build Pipeline
 # This workflow is triggered on push to the master or staging branch
 # It ensures that the master branch is always tested upon merging.
 on:
@@ -87,4 +87,4 @@ jobs:
   #       with:
   #         platforms: linux/amd64,linux/arm64
   #         push: true
-  #         tags: ${{ vars.DOCKER_USERNAME }}/microservice-auth:latest
+  #         tags: ${{ vars.DOCKER_USERNAME }}/auth-service:latest
