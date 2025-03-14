@@ -3,21 +3,4 @@ kind: ConfigMap
 metadata:
   name: auth-service-configmap
 data:
-  DB_HOST: 127.0.0.1
-  DB_USER: Prosperibe12
-  DB_NAME: microservices_auth
-  DB_PORT: "3306"
-  DB_ENGINE: django.db.backends.mysql
-  DATABASE_URL: postgres://user:password@hostname:5432/dbname
-  CLOUD_AMQP_URL: pass
-  DEBUG: "False"
-  ALLOWED_HOSTS: 127.0.0.1,localhost
-  ENVIRONMENT: production
-  EMAIL_HOST: smtp.gmail.com
-  EMAIL_PORT: "587"
-  EMAIL_USE_TLS: "True"
-  EMAIL_USE_SSL=: "False"
-  EMAIL_HOST_USER: victor.chukwudi010@gmail.com
-  EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
-  ADMIN_USER_NAME: Prosperibe12
-  ADMIN_USER_EMAIL: Prosperibe12@gmail.com
+  PLACEHOLDER: "NONE"
