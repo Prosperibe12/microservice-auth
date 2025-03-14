@@ -1,6 +1,6 @@
 # Authentication Service
 
-This is an Authentication Service for a Microservice and Distributed System Project. It holds User data and handles User Registration, Login, Token Verification, and Password Reset functionalities. A Gateway Service will consume this service. It is built using the Django Rest Framework and integrates with other microservices in the project. This Service will be built and run as a container service and deployed to a Kubernetes Cluster.
+This is an Authentication Service for a Microservice and Distributed System Project. It holds User data and handles User Registration, Login, Token Verification, and Password Reset functionalities. A Gateway Service will consume this service. It is built using the Django Rest Framework and integrates with other microservices in the project. This Service will be built and run as a container service and deployed to a Kubernetes Cluster. or more information about the main project, visit [pdf2podcast-microservice](https://github.com/Prosperibe12/pdf2podcast-microservice).
 
 ## Table of Contents
 
