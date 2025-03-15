@@ -97,6 +97,8 @@ class VerifyTokenView(generics.GenericAPIView):
             # get the user id from the payload and verify the user exists
             user = models.User.objects.get(id=payload['user_id'])
             if user and user.is_verified:
+                # add user emat payload
+                payload["email"] = user.email
                 return utils.CustomResponse.Success(payload, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError:
             return utils.CustomResponse.Failure("Token Expired", status=status.HTTP_400_BAD_REQUEST)
