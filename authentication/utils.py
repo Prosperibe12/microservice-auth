@@ -127,7 +127,9 @@ class AuthNotification:
         token = RefreshToken.for_user(user).access_token
         url_path = reverse('verify-email')
         subject = "ACCOUNT VERIFICATION"
-        absurl = f'http://{domain_name}{url_path}?token={str(token)}'
+        # since this service will not be exposed, gatweway service will handle this
+        # absurl = f'http://{domain_name}{url_path}?token={str(token)}'
+        absurl = f'http://mp3converter.com/verify-email/?token={str(token)}'
         message = f"Hello {user.fullname}, \n Kindly use the link below to activate your email: \n{absurl}"
 
         print(f"Sending account verification email \n {message}")
