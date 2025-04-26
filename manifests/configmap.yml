@@ -23,5 +23,5 @@ data:
   EMAIL_USE_SSL: "False"
 
   # Admin configuration
-  ADMIN_USER_NAME: "Prosperibe12"
-  ADMIN_USER_EMAIL: "Prosperibe12@gmail.com"
+  ADMIN_USER_NAME: ""
+  ADMIN_USER_EMAIL: ""
