@@ -3,7 +3,9 @@ kind: Deployment
 metadata:
   name: auth-deploy
   labels:
-    app: auth-api
+    version: v1
+    tier: backend
+    environment: production
 spec:
   replicas: 3
   selector:
@@ -21,7 +23,7 @@ spec:
     spec:
       containers:
         - name: auth-app
-          image: prosperibe12/auth-service:1.0.0
+          image: prosperibe12/auth-service
           ports:
             - containerPort: 8080
           resources:
@@ -35,4 +37,16 @@ spec:
             - configMapRef:
                 name: auth-config
             - secretRef:
-                name: auth-secret 
+                name: auth-secret
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15 
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
