@@ -45,7 +45,7 @@ DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 DB_HOST=your_db_host
 DB_PORT=3306
-CLOUD_AMQP_URL=amqp://guest:guest@localhost:5672/
+CLOUD_AMQP_URL=rabbitmq
 ```
 
 1. Clone Repository
@@ -73,16 +73,11 @@ python3 manage.py migrate
 ```bash
 python3 manage.py runserver
 ```
-### Running as Service
-2. Build and run the Docker containers:
-```bash
-docker build .
-```
 
 ### Running as Service
-3. Deploy to Local Kubernetes Cluster:
+2. Deploy to Local Kubernetes Cluster using Helm Charts:
 ```bash
-kubectl apply -f ./
+helm install [release name] [chart path]
 ```
 
 ## API Endpoints

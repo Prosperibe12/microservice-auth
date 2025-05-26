@@ -1,0 +1,95 @@
+# Configuration file for the auth-service Helm chart
+
+projectNameOverride: auth 
+
+# Common lables for deployment
+commonLabels:
+  app: authentication
+  tier: backend
+
+# Selector labels for the deployment
+selectorLabels:
+  app: authapi
+
+# Replica count for the deployment
+replicaCount: 3
+
+# Strategy for the deployment
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 1
+
+# Image configuration
+image:
+  name: authapp
+  repository: prosperibe12/auth-service
+  tag: latest
+  pullPolicy: Always
+  containerPort: 8000 
+
+# Resources for the deployment
+resources: {}
+  # limits:
+  #   cpu: "400m"
+  #   memory: "512Mi"
+  # requests:
+  #   cpu: "200m"
+  #   memory: "256Mi"
+
+# Liveness probe for the deployment
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+# Service configuration
+service:
+  type: ClusterIP 
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+
+# ConfigMap configuration
+config:
+  # General settings
+  DEBUG: "False"
+  ALLOWED_HOSTS: "127.0.0.1,localhost,*"
+  ENVIRONMENT: "production"
+  CLOUD_AMQP_URL: "amqp://guest:guest@rabbitmq-svc:5672/" 
+  SECRET_KEY: "django-insecure-42ql1n!8o5o&o7+-xwk3*s4dn0p())f(zy_1qj7qxt1e-n+^c3" 
+
+  # Database configuration
+  DB_HOST: "postgres-svc"
+  DB_USER: "Prosperibe12"
+  DB_NAME: "microservices_auth"
+  DB_PORT: "5432"
+  DB_ENGINE: "django.db.backends.postgresql" 
+
+  # Email configuration
+  EMAIL_BACKEND: "django.core.mail.backends.smtp.EmailBackend"
+  EMAIL_HOST: "smtp.gmail.com"
+  EMAIL_PORT: "587"
+  EMAIL_USE_TLS: "True"
+  EMAIL_USE_SSL: "False" 
+  EMAIL_HOST_USER: "victor.chukwudi010@gmail.com"
+
+  # Admin configuration
+  ADMIN_USER_NAME: "Prosperibe12"
+  ADMIN_USER_EMAIL: "Prosperibe12@gmail.com"
+
+# Secret configuration
+secret:
+  DB_PASSWORD: "!4u2kn0w" 
+  EMAIL_HOST_PASSWORD: "qgum rjzu lmwo ffrc" 
+
+
+# HPA configuration
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 80

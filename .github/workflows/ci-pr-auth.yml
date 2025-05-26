@@ -4,8 +4,7 @@ name: Auth Service Continuos Integration Pipeline
 on:
   pull_request:
     branches:
-      - master 
-      - release
+      - master
   
   workflow_dispatch:
 
